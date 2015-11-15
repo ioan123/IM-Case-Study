@@ -11,7 +11,7 @@ import sys
 
 mydb = MySQLdb.connect(host='173.194.86.97',
     user='root',
-    passwd='fudge',
+    passwd='',
     db='IOAN')
 	
 
