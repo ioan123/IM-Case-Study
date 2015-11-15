@@ -1,6 +1,6 @@
-####################### CSV PARSER - DATABASE CREATOR #############################
-#					    --- Name: Ioannis Nianios ---  							  #  
-#					--- email: ioan.nianios@gmail.com ---                         #
+########################################### CSV PARSER - DATABASE CREATOR ###########################################
+#					    --- Name: Ioannis Nianios ---  					    #		  #  
+#					--- email: ioan.nianios@gmail.com ---                                       #
 
 
 
