@@ -26,7 +26,7 @@ print "\n\tServer version:", row[0]
 print "\n\t up and running ...\n\n"
 
 
-### CREATING TABLES FOR DATABASE #####
+##################### CREATING TABLES FOR DATABASE ############################
 create_tables = """
 					
 					CREATE TABLE COUNTRIES(
@@ -80,14 +80,14 @@ for row in csv_file:
 		print "%s"% (row[id])
 """	
 
-##### INSERTING THE FILES INTO THE DATABASE ######
+##### INSERTING THE FILES INTO THE DATABASE ####################################
 csv_countries = csv.reader(file('countries.csv'))
 csv_regions = csv.reader(file('regions.csv'))
 
 
-"""CREATE TABLE CITIES_T(
+"""CREATE TABLE CITIES(
 					id INT NOT NULL,
-					country_id INT NOT NULL,
+					country_id INT,
 					region_id INT,
 					name VARCHAR(30),
 					iso_code VARCHAR(5),
@@ -132,31 +132,49 @@ for row in csv_regions:
 		sys.exit()
 
 """
-
+###################### PARSING JSON FILE #####################################
 data = []
 with open('cities') as f:
 	for line in f:
 		#print line
 		#for key in 
 		data.append(json.loads(line))		
-		#print data
-		sql=("INSERT INTO CITIES_TEST (id) VALUES(%('id')s);",line[0] )
-		cursor.execute(sql,line)
 		
+################# INSERTING CITIES FILE INTO DATABASE  #######################		
+"""
 i=0
-#for line in data:
-	#print(data[i]["region_id"])
-
 for line in data:
 	
-	try:
-		cursor.execute("INSERT INTO CITIES_T"
+	if 'id' in line:
+		id =  data[i]["id"]
+	else: 
+		id = 0		
+	if 'country_id' in line:
+		cid = data[i]["country_id"]
+	else: 
+		cid = 0		
+	if 'region_id' in line:
+		rid = data[i]["region_id"]
+	else: 
+		rid = 0
+	if 'name' in line:
+		name = data[i]["name"]
+	else: 
+		name = "None"			
+	if 'iso_code' in line:
+		iso = data[i]["iso_code"]
+	else: 
+		iso = "None"	
+	#print id, cid, rid, name, iso
+	try:		
+	cursor.execute("INSERT INTO CITIES"
 		"(id,country_id,region_id,name,iso_code)" 
-		"VALUES(%s,%s,%s,%s,%s);",(line))
+		"VALUES(%s,%s,%s,%s,%s);",(id,cid,rid,name,iso))
 	except:
 		print"ERROR INSERTING DATA AT ROW:",i,line
-		sys.exit()
+		sys.exit()	
 	i+=1
+"""
 
 ##### CREATING USER #####
 #cursor.execute("FLUSH PRIVILEGES;")
@@ -164,16 +182,23 @@ for line in data:
 #cursor.execute("GRANT SHOW VIEW ON IOAN.* TO 'v_user'@'173.194.86.97'; ")
 
 
-#print "The result is as follows: " ,achievement
+########################### CITY INFORMATION #########################
+#Input from user
+user_input = raw_input("Type in City of preference: ")
 
-#cursor.execute("SELECT id,answer from leftRightImages")
-
+cursor.execute(""" 
+ SELECT * FROM CITIES c JOIN COUNTRIES n ON c.country_id=n.id JOIN REGIONS r ON c.region_id = r.id AND c.name=%s;
+ """, (user_input,))
+ 
+#cursor.execute("SELECT * FROM CITIES c WHERE c.name=%s;",(user_input,))
 
 #Fetch the result and put into an array
-#results = cursor.fetchall()
+results = cursor.fetchall()
 
-#cursor.execute("UPDATE userResult SET result=%d WHERE id=1" % (achievement))
-
+for line in results:
+	print line
+#################################################################	
+	
 mydb.commit()
 cursor.close()
 # close the connection
