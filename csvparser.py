@@ -1,17 +1,19 @@
-########################################### CSV PARSER - DATABASE CREATOR ###########################################
-#					    --- Name: Ioannis Nianios ---  					    #		  #  
-#					--- email: ioan.nianios@gmail.com ---                                       #
+####################### CSV PARSER - DATABASE CREATOR #############################
+#					    --- Name: Ioannis Nianios ---  							  #  
+#					--- email: ioan.nianios@gmail.com ---                         #
 
 
 
 import csv
 import MySQLdb
 import sys
-
+import json
+from pprint import pprint
+#from unicode import unicode
 
 mydb = MySQLdb.connect(host='173.194.86.97',
     user='root',
-    passwd='',
+    passwd='fudge',
     db='IOAN')
 	
 
@@ -26,10 +28,11 @@ print "\n\t up and running ...\n\n"
 
 ### CREATING TABLES FOR DATABASE #####
 create_tables = """
+					
 					CREATE TABLE COUNTRIES(
 					id INT NOT NULL,
-					alpha2 VARCHAR(5),
-					alpha3 VARCHAR(5),
+					alpha2 VARCHAR(2),
+					alpha3 VARCHAR(3),
 					name VARCHAR(50),
 					targetable INT,
 					
@@ -48,7 +51,7 @@ create_tables = """
 					CREATE TABLE CITIES(
 					id INT NOT NULL,
 					country_id INT NOT NULL,
-					region_id INT NOT NULL,
+					region_id INT,
 					name VARCHAR(30),
 					iso_code VARCHAR(5),
 					
@@ -64,6 +67,7 @@ create_tables = """
 cursor.execute("USE IOAN")
 cursor.execute("SHOW TABLES")
 tables = cursor.fetchall()
+		
 ### PRINTING THE TABLES OF THE DATABASE ###
 for (table_name,) in cursor:
     print(table_name)
@@ -78,10 +82,19 @@ for row in csv_file:
 
 ##### INSERTING THE FILES INTO THE DATABASE ######
 csv_countries = csv.reader(file('countries.csv'))
-csv_cities = csv.reader(file('cities.csv'))
 csv_regions = csv.reader(file('regions.csv'))
 
-#cursor.execute("DROP TABLE COUNTRIES;")
+
+"""CREATE TABLE CITIES_T(
+					id INT NOT NULL,
+					country_id INT NOT NULL,
+					region_id INT,
+					name VARCHAR(30),
+					iso_code VARCHAR(5),
+					
+					PRIMARY KEY (id)
+					);	"""
+
 """
 firstline = True
 for row in csv_countries:
@@ -104,18 +117,51 @@ for row in csv_regions:
 	if firstline:
 		firstline=False
 		continue
+	try:
 	#print "\ninserting rows..."
-	ins = ("INSERT INTO REGIONS"
+		ins = ("INSERT INTO REGIONS"
 			"(id, country_id, name, iso_code)"
 			"VALUES(%s,%s,%s,%s);"
 			)
-	cursor.execute(ins,row)
+		
+		cursor.execute(ins, row)
+		mydb.commit()
+	except:
+		mydb.rollback()
+		print"ROW: ",row
+		sys.exit()
+
 """
 
+data = []
+with open('cities') as f:
+	for line in f:
+		#print line
+		#for key in 
+		data.append(json.loads(line))		
+		#print data
+		sql=("INSERT INTO CITIES_TEST (id) VALUES(%('id')s);",line[0] )
+		cursor.execute(sql,line)
+		
+i=0
+#for line in data:
+	#print(data[i]["region_id"])
+
+for line in data:
+	
+	try:
+		cursor.execute("INSERT INTO CITIES_T"
+		"(id,country_id,region_id,name,iso_code)" 
+		"VALUES(%s,%s,%s,%s,%s);",(line))
+	except:
+		print"ERROR INSERTING DATA AT ROW:",i,line
+		sys.exit()
+	i+=1
+
 ##### CREATING USER #####
-cursor.execute("FLUSH PRIVILEGES;")
-cursor.execute("CREATE USER 'v_user'@'173.194.86.97' IDENTIFIED BY '123'; ")
-cursor.execute("GRANT SHOW VIEW ON IOAN.* TO 'v_user'@'173.194.86.97'; ")
+#cursor.execute("FLUSH PRIVILEGES;")
+#cursor.execute("CREATE USER 'v_user'@'173.194.86.97' IDENTIFIED BY '123'; ")
+#cursor.execute("GRANT SHOW VIEW ON IOAN.* TO 'v_user'@'173.194.86.97'; ")
 
 
 #print "The result is as follows: " ,achievement
