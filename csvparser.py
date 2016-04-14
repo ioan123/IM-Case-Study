@@ -11,10 +11,10 @@ import json
 from pprint import pprint
 #from unicode import unicode
 
-mydb = MySQLdb.connect(host='173.194.86.97',
-    user='root',
-    passwd='fudge',
-    db='IOAN')
+mydb = MySQLdb.connect(host='',
+    user='',
+    passwd='',
+    db='')
 	
 
 cursor = mydb.cursor()
